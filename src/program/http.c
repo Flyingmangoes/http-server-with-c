@@ -17,23 +17,23 @@ const HttpMethodMap KNOWN_HTTP_METHODS[] = {
 
 size_t KNOWN_HTTP_METHODS_LEN = sizeof(KNOWN_HTTP_METHODS) / sizeof(KNOWN_HTTP_METHODS[0]);
 
-char do_GET(const struct HttpHeader *self, char *header) {
+int do_GET(const struct HttpHeader *self, char *header) {
 
 };
 
-char do_POST(const struct HttpHeader* header) {
+int do_POST(const struct HttpHeader* header) {
 
 };
 
-char do_PUT(const struct HttpHeader* header) {
+int do_PUT(const struct HttpHeader* header) {
 
 };
 
-char do_PATCH(const struct HttpHeader* header) {
+int do_PATCH(const struct HttpHeader* header) {
 
 };
 
-char do_DELETE(const struct HttpHeader* header) {
+int do_DELETE(const struct HttpHeader* header) {
 
 };
 

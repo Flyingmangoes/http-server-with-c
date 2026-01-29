@@ -17,6 +17,7 @@ typedef struct BString {
     size_t capacity;
 } BString;
 
+extern BString *filename;
 BString *bString_Init(size_t capacity, const char *const s);
 bool bString_Appends(BString *self, const char *const s);
 void bString_Free(BString *self);
@@ -67,21 +68,26 @@ typedef struct ServerContext {
     BString *filename;
 } ServerContext;
 
+typedef struct ClientContext {
+    SOCKET socket;
+    struct sockaddr_in addr;
+} ClientContext;
+
 extern const char HTTP_VERSION[];
 extern const HttpMethodMap KNOWN_HTTP_METHODS[];
-extern size_t KNOWN_HTTP_METHOD_LEN;
+extern size_t KNOWN_HTTP_METHODS_LEN;
 
 // HTTP related Function declaration
 int setupSaServer(const char *host, const char *port, struct sockaddr_in *out_addr, int *out_addr_len);
 int bind_and_listen(ServerContext *sctx);
 int handle_request(ServerContext *sctx);
 
-char do_GET(const struct HttpHeader *self, char *header);
-char do_POST(const struct HttpHeader *self);
-char do_PUT(const struct HttpHeader *self);
-char do_PATCH(const struct HttpHeader *self);
-char do_DELETE(const struct HttpHeader *self);
-
-extern struct DataString *filename;
+HttpRequest* HttpRequest_Parse(const char *raw_request);
+void HttpRequest_Free(HttpRequest *req);
+int do_GET(const struct HttpHeader *self, char *header);
+int do_POST(const struct HttpHeader *self);
+int do_PUT(const struct HttpHeader *self);
+int do_PATCH(const struct HttpHeader *self);
+int do_DELETE(const struct HttpHeader *self);
 #endif
 

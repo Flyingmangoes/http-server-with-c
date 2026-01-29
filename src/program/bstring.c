@@ -6,9 +6,9 @@
 #include <stdlib.h>
 #include "server.h"
 
-struct DataString *filename = NULL;
+BString *filename = NULL;
 
-BString *bString_init(size_t capacity, const char *const s) {
+BString *bString_Init(size_t capacity, const char *const s) {
     struct BString *bstr = malloc(sizeof(struct BString));
     if (bstr == NULL) return NULL;
     if(capacity == 0) capacity = BSTRING_INIT_CAPACITY;
@@ -35,7 +35,7 @@ BString *bString_init(size_t capacity, const char *const s) {
     return bstr;
 };
 
-bool bString_appends(BString *self, const char *const s) {
+bool bString_Appends(BString *self, const char *const s) {
     assert(s != NULL);
     assert(self != NULL);
 
@@ -61,7 +61,7 @@ bool bString_appends(BString *self, const char *const s) {
     return true;
 };
 
-void bString_free(BString *self) {
+void bString_Free(BString *self) {
     assert(self != NULL);
 
     free(self->data);

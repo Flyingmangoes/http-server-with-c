@@ -70,6 +70,7 @@ int bind_and_listen(ServerContext *sctx) {
             return -1;
     }
 
+    // allowed reusing same address by making reuse variable
     int reuse = 1;
     if (setsockopt(sctx->listen_socket, SOL_SOCKET, SO_REUSEADDR, (const char *) &reuse, sizeof(reuse)) < 0) {
         printf("error: SO_REUSEADDR failed, %d\n", WSAGetLastError());
@@ -83,16 +84,15 @@ int bind_and_listen(ServerContext *sctx) {
         return -1;
     }
 
-    if (listen(sctx->listen_socket, SOMAXCONN) == SOCKET_ERROR) {
-        printf("error: Listen failed, \n", WSAGetLastError());
+    int connection_backlog = 10;
+    if (listen(sctx->listen_socket, connection_backlog) == SOCKET_ERROR) { // change SOMAXCONN to 10
+        printf("error: Listen failed, %d\n", WSAGetLastError());
         closesocket(sctx->listen_socket);
         sctx->listen_socket = INVALID_SOCKET;
         return -1;
     }
-    
-
     printf("Server Listening . . .\n");
-    
+    sctx->status = SERVER_RUNNING;
     handle_request(sctx);
 
     return 0;
@@ -100,7 +100,10 @@ int bind_and_listen(ServerContext *sctx) {
 
 int handle_request(ServerContext *sctx) {
     while(1){
-        SOCKET conn_fd = accept(sctx->listen_socket, (struct sockaddr *) &sctx->addr, &sctx->addr_len);
+        struct sockaddr_in client_addr;
+        int client_len = sizeof(client_addr);
+        SOCKET conn_fd = accept(sctx->listen_socket, (struct sockaddr *) &client_addr, &client_len);
+
         if(conn_fd == INVALID_SOCKET) {
             printf("error: Accept failed, %d\n", WSAGetLastError());
             continue;

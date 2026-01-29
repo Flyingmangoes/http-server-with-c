@@ -6,13 +6,23 @@
 #include <stdio.h>
 #include "server.h"
 
-int main(void) {
+int main(int argc, char **argv) {
 	WSADATA wsaData;
+	if (argc > 2) {
+    	filename = bString_Init(0, argv[2]);
+    	if(argv[2][strlen(argv[2]) - 1] != '/') {
+       		bString_Appends(filename, "/");
+    	}
+	} else {
+    	filename = bString_Init(0, "./public/");
+	}
+
 	int _wsaStart = WSAStartup(MAKEWORD(2,2), &wsaData);
 	if(_wsaStart != 0) {
-		printf("error: Initialization failed.\n", WSAGetLastError());
+		printf("error: Initialization failed.%d\n", WSAGetLastError());
 		return 1;
 	}
+
 	setbuf(stdout, NULL);
 	setbuf(stderr, NULL);
 
@@ -29,6 +39,7 @@ int main(void) {
 		return 1;
 	}
 
+	if (filename) bString_Free(filename);
 	WSACleanup();
 	return 0;
 }
