@@ -17,7 +17,6 @@ typedef struct BString {
     size_t capacity;
 } BString;
 
-extern BString *filename;
 BString *bString_Init(size_t capacity, const char *const s);
 bool bString_Appends(BString *self, const char *const s);
 void bString_Free(BString *self);
@@ -80,14 +79,10 @@ extern size_t KNOWN_HTTP_METHODS_LEN;
 // HTTP related Function declaration
 int setupSaServer(const char *host, const char *port, struct sockaddr_in *out_addr, int *out_addr_len);
 int bind_and_listen(ServerContext *sctx);
-int handle_request(ServerContext *sctx);
+int handle_event_loop(ServerContext *sctx);
 
-HttpRequest* HttpRequest_Parse(const char *raw_request);
-void HttpRequest_Free(HttpRequest *req);
-int do_GET(const struct HttpHeader *self, char *header);
-int do_POST(const struct HttpHeader *self);
-int do_PUT(const struct HttpHeader *self);
-int do_PATCH(const struct HttpHeader *self);
-int do_DELETE(const struct HttpHeader *self);
+char *http_get_header(HttpRequest *self, char *header);
+DWORD WINAPI _handle_connection(LPVOID conn_fd_ptr);
+void handle_connection(SOCKET conn_fd);
 #endif
 

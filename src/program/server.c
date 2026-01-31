@@ -65,40 +65,43 @@ int setupSaServer(const char* host, const char *port, struct sockaddr_in *out_ad
 int bind_and_listen(ServerContext *sctx) {
     sctx->listen_socket = socket(AF_INET, SOCK_STREAM, 0);
 
-    if (sctx->listen_socket == INVALID_SOCKET) {
+    if(sctx->listen_socket == INVALID_SOCKET) {
             printf("error: Invalid Socket\n");
             return -1;
     }
 
     // allowed reusing same address by making reuse variable
     int reuse = 1;
-    if (setsockopt(sctx->listen_socket, SOL_SOCKET, SO_REUSEADDR, (const char *) &reuse, sizeof(reuse)) < 0) {
+    if(setsockopt(sctx->listen_socket, SOL_SOCKET, SO_REUSEADDR, (const char *) &reuse, sizeof(reuse)) < 0) {
         printf("error: SO_REUSEADDR failed, %d\n", WSAGetLastError());
+        sctx->status = SERVER_OFFLINE;
         return -1;
     }
 
-    if (bind(sctx->listen_socket, (struct sockaddr *) &sctx->addr, sizeof(struct sockaddr_in)) ==  SOCKET_ERROR) {
+    if(bind(sctx->listen_socket, (struct sockaddr *) &sctx->addr, sizeof(struct sockaddr_in)) ==  SOCKET_ERROR) {
         printf("error: Failed to bind Socket, %d\n", WSAGetLastError());
         closesocket(sctx->listen_socket);
         sctx->listen_socket = INVALID_SOCKET;
+        sctx->status = SERVER_OFFLINE;
         return -1;
     }
 
     int connection_backlog = 10;
-    if (listen(sctx->listen_socket, connection_backlog) == SOCKET_ERROR) { // change SOMAXCONN to 10
+    if(listen(sctx->listen_socket, connection_backlog) == SOCKET_ERROR) { // change SOMAXCONN to 10
         printf("error: Listen failed, %d\n", WSAGetLastError());
         closesocket(sctx->listen_socket);
         sctx->listen_socket = INVALID_SOCKET;
+        sctx->status = SERVER_OFFLINE;
         return -1;
     }
     printf("Server Listening . . .\n");
     sctx->status = SERVER_RUNNING;
-    handle_request(sctx);
+    handle_event_loop(sctx);
 
     return 0;
 };
 
-int handle_request(ServerContext *sctx) {
+int handle_event_loop(ServerContext *sctx) {
     while(1){
         struct sockaddr_in client_addr;
         int client_len = sizeof(client_addr);
@@ -110,7 +113,7 @@ int handle_request(ServerContext *sctx) {
         }
         printf("Client connected on socket %llu\n", (unsigned long long)conn_fd);
         
-        closesocket(conn_fd);
+        handle_connection(conn_fd);
     }
 
     return 0;

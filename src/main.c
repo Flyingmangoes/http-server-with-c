@@ -8,13 +8,14 @@
 
 int main(int argc, char **argv) {
 	WSADATA wsaData;
+	ServerContext sctx = {0};
 	if (argc > 2) {
-    	filename = bString_Init(0, argv[2]);
+    	sctx.filename = bString_Init(0, argv[2]);
     	if(argv[2][strlen(argv[2]) - 1] != '/') {
-       		bString_Appends(filename, "/");
+       		bString_Appends(sctx.filename, "/");
     	}
 	} else {
-    	filename = bString_Init(0, "./public/");
+    	sctx.filename = bString_Init(0, "./public/");
 	}
 
 	int _wsaStart = WSAStartup(MAKEWORD(2,2), &wsaData);
@@ -26,7 +27,6 @@ int main(int argc, char **argv) {
 	setbuf(stdout, NULL);
 	setbuf(stderr, NULL);
 
-	ServerContext sctx = {0};
 	sctx.addr_len = sizeof(struct sockaddr_in);
 
 	if (setupSaServer("127.0.0.1", "50000", &sctx.addr, &sctx.addr_len) != 0) {
@@ -39,7 +39,7 @@ int main(int argc, char **argv) {
 		return 1;
 	}
 
-	if (filename) bString_Free(filename);
+	if (sctx.filename) bString_Free(sctx.filename);
 	WSACleanup();
 	return 0;
 }
