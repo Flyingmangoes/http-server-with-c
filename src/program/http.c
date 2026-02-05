@@ -138,11 +138,6 @@ DWORD WINAPI _handle_connection(LPVOID param) {
 
     int bytes_sent = SOCKET_ERROR;
 
-    printf("Parsed %zu headers:\n", req.headers_len);
-    for (size_t i = 0; i < req.headers_len; i++) {
-        printf("  [%zu] '%s': '%s'\n", i, req.headers[i].key, req.headers[i].value);
-    }
-
     if(strcmp(req.path, "/") == 0) {
         const char res[] = "HTTP/1.1 200 OK\r\n\r\n";
         bytes_sent = send(conn_fd, res, sizeof(res) -1, 0);
